@@ -147,11 +147,13 @@ Route::middleware('isStaff')->prefix('/staff')->name('staff.')->group(function (
 });
 
 Route::middleware('isApplicant')->prefix('/applicants')->name('applicants.')->group(function () {
-    // Route::get('/verifikasi', [ApplicantController::class, 'verifikasi'])->name('verifikasi');
+
     Route::get('/index', [ApplicantController::class, 'indexPendaftar'])->name('index');
     Route::post('/upload/{id}', [ApplicantController::class, 'uploadBuktiPembayaran'])->name('upload');
 
     Route::prefix('/documents')->name('documents.')->group(function(){
         Route::get('/', [ApplicantSideController::class, 'index'])->name('index');
+        Route::post('/store', [ApplicantSideController::class, 'store'])->name('store');
+        // Route::put('/store', [ApplicantSideController::class, 'store'])->name('store');
     });
 });

@@ -13,13 +13,12 @@
         @if (session('error'))
             <div class="alert alert-danger">{{ session('error') }}</div>
         @endif
-
-        <form action="" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('applicants.documents.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <div class="row g-4">
 
-                <!-- Kartu Keluarga -->
+                <input type="hidden" name="applicant_id" value="{{ Auth::user()->id }}">
                 <div class="col-md-6">
                     <label class="form-label fw-medium">Kartu Keluarga (KK) <span class="text-danger">*</span></label>
                     <input type="file" name="kartu_keluarga" class="form-control @error('kartu_keluarga') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png">
@@ -28,7 +27,7 @@
                     @enderror
                 </div>
 
-                <!-- Akte Kelahiran -->
+
                 <div class="col-md-6">
                     <label class="form-label fw-medium">Akte Kelahiran <span class="text-danger">*</span></label>
                     <input type="file" name="akte_kelahiran" class="form-control @error('akte_kelahiran') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png">
@@ -37,7 +36,7 @@
                     @enderror
                 </div>
 
-                <!-- Ijazah -->
+
                 <div class="col-md-6">
                     <label class="form-label fw-medium">Ijazah Terakhir</label>
                     <input type="file" name="ijazah" class="form-control @error('ijazah') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png">
@@ -46,7 +45,7 @@
                     @enderror
                 </div>
 
-                <!-- Surat Kelulusan / SKL -->
+
                 <div class="col-md-6">
                     <label class="form-label fw-medium">Surat Keterangan Lulus (SKL)</label>
                     <input type="file" name="surat_kelulusan" class="form-control @error('surat_kelulusan') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png">
@@ -55,7 +54,7 @@
                     @enderror
                 </div>
 
-                <!-- KTP Ayah -->
+
                 <div class="col-md-6">
                     <label class="form-label fw-medium">KTP Ayah</label>
                     <input type="file" name="ktp_ayah" class="form-control @error('ktp_ayah') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png">
@@ -64,7 +63,7 @@
                     @enderror
                 </div>
 
-                <!-- KTP Ibu -->
+
                 <div class="col-md-6">
                     <label class="form-label fw-medium">KTP Ibu</label>
                     <input type="file" name="ktp_ibu" class="form-control @error('ktp_ibu') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png">
@@ -73,7 +72,7 @@
                     @enderror
                 </div>
 
-                <!-- Surat Kesehatan -->
+
                 <div class="col-md-6">
                     <label class="form-label fw-medium">Surat Keterangan Sehat</label>
                     <input type="file" name="surat_kesehatan" class="form-control @error('surat_kesehatan') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png">
@@ -88,6 +87,7 @@
                 <button type="submit" class="btn btn-primary btn-lg px-5">Simpan & Lanjutkan</button>
             </div>
         </form>
+
     </div>
 </div>
 @endsection

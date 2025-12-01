@@ -53,9 +53,9 @@ class Applicant extends Model
     {
         return $this->belongsTo(RegistrationWave::class, 'id_registration_wave');
     }
-    public function documents()
+    public function document()
     {
-        return $this->hasOne(Document::class);
+        return $this->hasOne(Document::class, 'applicant_id');
     }
     public function certificates()
     {

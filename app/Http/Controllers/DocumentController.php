@@ -12,7 +12,7 @@ class DocumentController extends Controller
      */
     public function index()
     {
-        return view('applicants.home');
+        return view('applicants.documents.index');
     }
 
     /**
@@ -28,7 +28,9 @@ class DocumentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            
+        ]);
     }
 
     /**
