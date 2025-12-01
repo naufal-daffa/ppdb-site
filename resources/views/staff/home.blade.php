@@ -6,12 +6,12 @@
     @endif
     <div class="container mt-5">
         <div class="d-flex justify-content-end gap-3">
-            {{-- <a href="{{ route('admin.skill-field.export') }}" class="btn btn-secondary">Export (.xlsx)</a> --}}
-            <a href="{{ route('admin.users.create') }}" class="btn btn-success">Tambah Data</a>
+            <a href="" class="btn btn-secondary">Export (.xlsx)</a>
+            {{-- <a href="{{ route('admin.users.create') }}" class="btn btn-success">Tambah Data</a> --}}
             {{-- <a href="{{ route('admin.skill-field.trash') }}" class="btn btn-warning">Lihat Data Sampah</a> --}}
 
         </div>
-        <h5>Data Staff</h5>
+        <h5>Data Bukti Pembayaran Pendaftar</h5>
         <table id="tableData" class="table table-bordered">
             <thead>
                 <tr>

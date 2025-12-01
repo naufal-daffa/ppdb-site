@@ -39,24 +39,24 @@
         <!-- 2 column grid layout for inline styling -->
         <div class="row mb-4">
             <div class="col-6 d-flex justify-content-between">
-                <!-- Checkbox -->
+                {{-- <!-- Checkbox -->
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" value="" id="form2Example34" checked />
                     <label class="form-check-label" for="form2Example34"> Ingatkan saya </label>
-                </div>
+                </div> --}}
             </div>
 
-            <div class="col-6 justify-content-end">
+            {{-- <div class="col-6 justify-content-end">
                 <!-- Simple link -->
                 <a href="#!">Lupa password?</a>
-            </div>
+            </div> --}}
         </div>
 
         <!-- Submit button -->
         <button data-mdb-ripple-init type="submit" class="btn btn-primary btn-block mb-4">Sign in</button>
 
         <!-- Register buttons -->
-        <div class="text-center">
+        {{-- <div class="text-center">
             <p>Tidak punya akun? <a href="{{ route('signup') }}">Register</a></p>
             <p>Atau sign up dengan:</p>
             <button data-mdb-ripple-init type="button" class="btn btn-secondary btn-floating mx-1">
@@ -74,6 +74,6 @@
             <button data-mdb-ripple-init type="button" class="btn btn-secondary btn-floating mx-1">
                 <i class="fab fa-github"></i>
             </button>
-        </div>
+        </div> --}}
     </form>
 @endsection

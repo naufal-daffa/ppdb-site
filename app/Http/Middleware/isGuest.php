@@ -24,7 +24,7 @@ class isGuest
             }elseif(Auth::user()->role == 'staff'){
                 return redirect()->route('staff.dashboard');
             }elseif(Auth::user()->role == 'applicant'){
-                return redirect()->route('applicants.indexPendaftar');
+                return redirect()->route('applicants.index');
             }else{
                 return redirect()->route('home');
             }

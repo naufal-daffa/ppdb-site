@@ -235,6 +235,18 @@
                             Pendaftar
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('staff.applicants.home') }}">
+                            <i class="bi bi-house"></i>
+                            Dokumen
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('staff.applicants.home') }}">
+                            <i class="bi bi-house"></i>
+                            Bukti Pembayaran
+                        </a>
+                    </li>
                     {{--
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('admin.skill-fields.index') }}">
@@ -272,10 +284,10 @@
 
     <div class="main-content">
         <div class="container mt-5">
-            <div class="d-flex gap-3">
+            {{-- <div class="d-flex gap-3">
                 <a href="{{ route('staff.applicants.home') }}" class="text-info">Bukti Pembayaran</a>
                 <a href="" class="text-info">Dokumen</a>
-            </div>
+            </div> --}}
         </div>
         @yield('content')
     </div>
