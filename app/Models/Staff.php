@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Staff extends Model
 {
@@ -16,4 +17,15 @@ class Staff extends Model
         'waktu_wawancara',
         'status_kehadiran'
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    // Relasi ke pendaftar (tabel applicants)
+    public function applicant(): BelongsTo
+    {
+        return $this->belongsTo(Applicant::class, 'applicant_id');
+    }
 }

@@ -236,7 +236,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('staff.applicants.home') }}">
+                        <a class="nav-link" href="{{ route('staff.documents.index') }}">
                             <i class="bi bi-house"></i>
                             Dokumen
                         </a>

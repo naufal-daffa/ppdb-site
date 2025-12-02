@@ -226,7 +226,7 @@
             <ul class="nav flex-column">
                 <div class="overflow-y-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="">
+                        <a class="nav-link" href="{{ route('admin.dashboard') }}">
                             <i class="bi bi-house"></i>
                             Dashboard
                         </a>

@@ -22,14 +22,17 @@
                     <small class="text-danger">{{ $message }}</small>
                 @enderror
             </div>
-            <select name="applicant_id" class="form-select">
+            <select name="applicant_id" class="form-select"> <!-- nama field jadi applicant_id -->
                 <option value="">Pendaftar</option>
                 @foreach ($applicants as $applicant)
-                    @if ($applicant['status_verifikasi'] != null || $applicant['status_verfikasi'] != 'ditolak')
-                        <option value="{{ $applicant['id'] }}">{{ $applicant['nama_lengkap'] }}</option>
+                    @if ($applicant->status_pendaftaran !== 'ditolak' && $applicant->deleted_at === null)
+                        <option value="{{ $applicant->id }}">{{ $applicant->nama_lengkap }}</option>
                     @endif
                 @endforeach
             </select>
+            @error('applicant_id')
+                <small class="text-danger">{{ $message }}</small>
+            @enderror
             @error('applicant_id')
                 <small class="text-danger">{{ $message }}</small>
             @enderror

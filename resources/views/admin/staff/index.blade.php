@@ -30,13 +30,13 @@
         </table>
     </div>
 @endsection
-{{-- @push('script')
+@push('script')
     <script>
         $(function() {
             $('#tableData').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('admin.skill-fields.datatables') }}",
+                ajax: "{{ route('admin.staff.datatables') }}",
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex',
@@ -44,25 +44,33 @@
                         searchable: false
                     },
                     {
-                        data: 'nama',
-                        name: 'nama',
-                        orderable: true,
-                        searchable: true
+                        data: 'nama_staff',
+                        name: 'nama_staff'
                     },
                     {
-                        data: 'deskripsi',
-                        name: 'deskripsi',
-                        orderable: false,
-                        searchable: true
+                        data: 'nama_pendaftar',
+                        name: 'nama_pendaftar'
                     },
                     {
-                        data: 'buttons',
-                        name: 'buttons',
+                        data: 'tanggal_wawancara',
+                        name: 'tanggal_wawancara'
+                    },
+                    {
+                        data: 'waktu_wawancara',
+                        name: 'waktu_wawancara'
+                    },
+                    {
+                        data: 'status_kehadiran',
+                        name: 'status_kehadiran'
+                    },
+                    {
+                        data: 'aksi',
+                        name: 'aksi',
                         orderable: false,
                         searchable: false
-                    },
+                    }
                 ]
-            })
-        })
+            });
+        });
     </script>
-@endpush --}}
+@endpush

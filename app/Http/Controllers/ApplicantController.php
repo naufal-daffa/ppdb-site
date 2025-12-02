@@ -107,9 +107,7 @@ class ApplicantController extends Controller
      */
     public function store(Request $request)
     {
-        // ==========================
-        // VALIDASI INPUT
-        // ==========================
+
         $request->validate([
             'nama_lengkap' => 'required|max:255',
             'nisn' => 'required|numeric|unique:applicants,nisn',
@@ -124,14 +122,10 @@ class ApplicantController extends Controller
             'nomor_telepon_wali' => 'required|numeric',
         ]);
 
-        // ==========================
-        // AMBIL GELOMBANG PENDAFTARAN AKTIF
-        // ==========================
+
         $wave = RegistrationWave::where('aktif', 1)->first();
 
-        // ==========================
-        // GENERATE USER
-        // ==========================
+
         // naufaldaffa098
         $usernameBase = explode('@', $request->alamat_email)[0];
         $username = $usernameBase . rand(100, 999);
@@ -145,15 +139,9 @@ class ApplicantController extends Controller
             'role' => 'applicant',
         ]);
 
-        // ==========================
-        // FORMAT ID UNTUK PDF
-        // ==========================
         $lastApplicant = Applicant::latest('id')->first();
         $userIdFormatted = str_pad(($lastApplicant?->id ?? 0) + 1, 4, '0', STR_PAD_LEFT);
 
-        // ==========================
-        // SIMPAN DATA APPLICANT
-        // ==========================
         $applicant = Applicant::create([
             'user_id' => $user->id,
             'nisn' => $request->nisn,
@@ -171,9 +159,6 @@ class ApplicantController extends Controller
 
         $paymentUrl = null;
 
-        // ==========================
-        // MIDTRANS TRANSACTION
-        // ==========================
         try {
             $midtrans = new MidtransService();
 
@@ -191,7 +176,7 @@ class ApplicantController extends Controller
 
             if (!empty($payment['url'])) {
                 $paymentUrl = $payment['url'];
-                $applicant->payment_url = $paymentUrl;
+                $applicant->payment_url = $paymentUrl ;
                 $applicant->save();
 
                 Log::info("Payment URL berhasil disimpan: " . $paymentUrl);
@@ -202,9 +187,6 @@ class ApplicantController extends Controller
             Log::error('Midtrans Error: ' . $e->getMessage());
         }
 
-        // ==========================
-        // PDF GENERATION TANPA QR
-        // ==========================
         $pdf = Pdf::loadView('pdf.registration_info', [
             'nama' => $request->nama_lengkap,
             'username' => $username,
@@ -216,9 +198,6 @@ class ApplicantController extends Controller
             'payment_url' => $paymentUrl,
         ]);
 
-        // ==========================
-        // SEND EMAIL
-        // ==========================
         try {
             Mail::send([], [], function ($message) use ($request, $pdf, $paymentUrl) {
                 $message->from(config('mail.from.address'), config('mail.from.name'))
@@ -237,9 +216,6 @@ class ApplicantController extends Controller
             Log::error('Email send failed: ' . $e->getMessage());
         }
 
-        // ==========================
-        // REDIRECT RESULT
-        // ==========================
         if ($applicant && $user) {
             return redirect()->route('login')
                 ->with('success', 'Pendaftaran berhasil! Cek email Anda untuk akun dan link pembayaran.');

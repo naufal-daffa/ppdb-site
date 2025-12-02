@@ -21,16 +21,13 @@ class Document extends Model
         'ktp_ibu',
         'surat_kesehatan',
         'status_verifikasi',
-        'lokasi_berkas'
+        // 'lokasi_berkas'
     ];
 
     // public function applicant() { return $this->belongsTo(Applicant::class); }
-
     public function applicant()
     {
         return $this->belongsTo(Applicant::class, 'applicant_id');
-        // atau kalau pakai User:
-        // return $this->belongsTo(User::class, 'applicant_id');
     }
 }
 

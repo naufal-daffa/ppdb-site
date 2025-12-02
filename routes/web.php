@@ -144,6 +144,9 @@ Route::middleware('isStaff')->prefix('/staff')->name('staff.')->group(function (
         Route::patch('/dashboard/terima/{id}', [ApplicantController::class, 'diterima'])->name('terima');
         Route::patch('/dashboard/tolak/{id}', [ApplicantController::class, 'ditolak'])->name('tolak');
     });
+    Route::prefix('/documents')->name('documents.')->group(function() {
+        Route::get('/', DocumentController::class, 'index')->name('index');
+    });
 });
 
 Route::middleware('isApplicant')->prefix('/applicants')->name('applicants.')->group(function () {

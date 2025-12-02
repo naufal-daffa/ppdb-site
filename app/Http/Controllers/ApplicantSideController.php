@@ -12,11 +12,15 @@ class ApplicantSideController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        // $applicant = Applicant::find($request->applicant_id);
-        // dd($applicant);
-        return view('applicants.documents.index');
+        $applicant = Auth::user()->applicant;
+
+        if (!$applicant) {
+            return redirect()->route('applicants.index')->with('error', 'Lengkapi data pendaftaran terlebih dahulu.');
+        }
+
+        return view('applicants.documents.index', compact('applicant'));
     }
     /**
      * Show the form for creating a new resource.
@@ -31,56 +35,46 @@ class ApplicantSideController extends Controller
 
     public function store(Request $request)
     {
-        // Pastikan applicant benar-benar ada dan milik user yang login
-        $applicant = Applicant::where('id', $request->applicant_id)
-                            ->where('user_id', Auth::id())
-                            ->firstOrFail();
+        $applicant = Auth::user()->applicant;
+        if (!$applicant) abort(404);
 
         $request->validate([
-            'kartu_keluarga'  => 'required|image|mimes:jpg,jpeg,png|max:5120',
-            'akte_kelahiran'  => 'required|image|mimes:jpg,jpeg,png|max:5120',
-            'ijazah'          => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
-            'surat_kelulusan' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
-            'ktp_ayah'        => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
-            'ktp_ibu'         => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
-            'surat_kesehatan'=> 'nullable|image|mimes:jpg,jpeg,png|max:5120',
+            'kartu_keluarga'   => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'akte_kelahiran'   => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'ijazah'           => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'surat_kelulusan'  => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'ktp_ayah'         => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'ktp_ibu'          => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'surat_kesehatan' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
 
-        $folder = "documents/" . Auth::user()->id;
-
-        // Siapkan data dasar
-        $data = [
-            'applicant_id'       => $applicant->id,
-            'status_verifikasi'  => 'menunggu',
-        ];
+        $folder = 'documents/applicant_' . $applicant->id;
+        $data = ['status_verifikasi' => 'menunggu'];
 
         $fields = ['kartu_keluarga','akte_kelahiran','ijazah','surat_kelulusan','ktp_ayah','ktp_ibu','surat_kesehatan'];
 
-        // Load relasi document sekali saja biar lebih cepat & aman
-        $document = $applicant->document; // bisa null, tapi kita tangani dengan benar
-
         foreach ($fields as $field) {
             if ($request->hasFile($field)) {
-                // Hapus file lama KALAU ADA
-                if ($document && $document->{$field}) {
-                    Storage::disk('public')->delete($document->{$field});
+                // Hapus file lama
+                $oldPath = Document::where('applicant_id', $applicant->id)->value($field);
+                if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+                    Storage::disk('public')->delete($oldPath);
                 }
 
-                $file     = $request->file($field);
-                $filename = $field . '_' . time() . '_' . Auth::user()->id . '.' . $file->getClientOriginalExtension();
-                $path     = $file->storeAs($folder, $filename, 'public');
-
+                $file = $request->file($field);
+                $filename = $field . '_' . $applicant->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs($folder, $filename, 'public');
                 $data[$field] = $path;
             }
         }
 
-        // Update atau buat baru → otomatis handle kalau document belum ada
+        // Update atau buat baru → semua field langsung masuk DB
         Document::updateOrCreate(
             ['applicant_id' => $applicant->id],
             $data
         );
 
-        return back()->with('success', 'Dokumen berhasil disimpan.');
+        return back()->with('success', 'Dokumen berhasil disimpan!');
     }
 
     /**

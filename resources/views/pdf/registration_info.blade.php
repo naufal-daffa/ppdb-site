@@ -70,7 +70,7 @@
     </div>
     <h3>Link Pembayaran</h3>
     <p>Anda dapat membayar biaya pendaftaran melalui link berikut:</p>
-    <p><a href="{{ $payment_url }}">{{ $payment_url }}</a></p>
+    <p><a href="{{ $payment_url }}">Link pendaftaran</a></p>
 
     <p>Dengan total pembayaran sebesar : Rp. 250.000</p>
 

@@ -3,91 +3,72 @@
 @extends('applicants.app')
 
 @section('content')
-<div class="container my-5">
-    <div class="w-75 mx-auto">
-        <h4 class="text-center mb-5 fw-bold">Unggah Dokumen Persyaratan</h4>
+    <div class="container my-5">
+        <div class="w-75 mx-auto">
+            <h4 class="text-center mb-5 fw-bold text-primary">Unggah Dokumen Persyaratan</h4>
 
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-        @if (session('error'))
-            <div class="alert alert-danger">{{ session('error') }}</div>
-        @endif
-        <form action="{{ route('applicants.documents.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
+            @if (session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
 
-            <div class="row g-4">
+            <form action="{{ route('applicants.documents.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
 
-                <input type="hidden" name="applicant_id" value="{{ Auth::user()->id }}">
-                <div class="col-md-6">
-                    <label class="form-label fw-medium">Kartu Keluarga (KK) <span class="text-danger">*</span></label>
-                    <input type="file" name="kartu_keluarga" class="form-control @error('kartu_keluarga') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png">
-                    @error('kartu_keluarga')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
+                <div class="row g-4">
+
+                    @php
+                        $fields = [
+                            'kartu_keluarga' => ['label' => 'Kartu Keluarga (KK)', 'required' => true],
+                            'akte_kelahiran' => ['label' => 'Akte Kelahiran', 'required' => true],
+                            'ijazah' => ['label' => 'Ijazah Terakhir', 'required' => false],
+                            'surat_kelulusan' => ['label' => 'Surat Keterangan Lulus (SKL)', 'required' => false],
+                            'ktp_ayah' => ['label' => 'KTP Ayah', 'required' => false],
+                            'ktp_ibu' => ['label' => 'KTP Ibu', 'required' => false],
+                            'surat_kesehatan' => ['label' => 'Surat Keterangan Sehat', 'required' => false],
+                        ];
+                    @endphp
+
+                    @foreach ($fields as $field => $info)
+                        @php
+                            $filePath = $applicant->document?->{$field} ?? null;
+                            $hasFile = $filePath && Storage::disk('public')->exists($filePath);
+                        @endphp
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium">
+                                {{ $info['label'] }}
+                                @if ($info['required'])
+                                    <span class="text-danger">*</span>
+                                @endif
+                            </label>
+
+                            @if ($hasFile)
+                                <div class="mb-2">
+                                    <a href="{{ Storage::url($filePath) }}" target="_blank" class="btn btn-sm btn-success">
+                                        Lihat Dokumen
+                                    </a>
+                                    <span class="badge bg-info ms-2">Sudah diunggah</span>
+                                </div>
+                            @endif
+
+                            <input type="file" name="{{ $field }}"
+                                class="form-control @error($field) is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png">
+                            @error($field)
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+                        </div>
+                    @endforeach
+
                 </div>
 
-
-                <div class="col-md-6">
-                    <label class="form-label fw-medium">Akte Kelahiran <span class="text-danger">*</span></label>
-                    <input type="file" name="akte_kelahiran" class="form-control @error('akte_kelahiran') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png">
-                    @error('akte_kelahiran')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
+                <div class="text-center mt-5">
+                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                        Simpan Dokumen
+                    </button>
                 </div>
-
-
-                <div class="col-md-6">
-                    <label class="form-label fw-medium">Ijazah Terakhir</label>
-                    <input type="file" name="ijazah" class="form-control @error('ijazah') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png">
-                    @error('ijazah')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
-                </div>
-
-
-                <div class="col-md-6">
-                    <label class="form-label fw-medium">Surat Keterangan Lulus (SKL)</label>
-                    <input type="file" name="surat_kelulusan" class="form-control @error('surat_kelulusan') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png">
-                    @error('surat_kelulusan')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
-                </div>
-
-
-                <div class="col-md-6">
-                    <label class="form-label fw-medium">KTP Ayah</label>
-                    <input type="file" name="ktp_ayah" class="form-control @error('ktp_ayah') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png">
-                    @error('ktp_ayah')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
-                </div>
-
-
-                <div class="col-md-6">
-                    <label class="form-label fw-medium">KTP Ibu</label>
-                    <input type="file" name="ktp_ibu" class="form-control @error('ktp_ibu') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png">
-                    @error('ktp_ibu')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
-                </div>
-
-
-                <div class="col-md-6">
-                    <label class="form-label fw-medium">Surat Keterangan Sehat</label>
-                    <input type="file" name="surat_kesehatan" class="form-control @error('surat_kesehatan') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png">
-                    @error('surat_kesehatan')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
-                </div>
-
-            </div>
-
-            <div class="text-center mt-5">
-                <button type="submit" class="btn btn-primary btn-lg px-5">Simpan & Lanjutkan</button>
-            </div>
-        </form>
-
+            </form>
+        </div>
     </div>
-</div>
 @endsection
