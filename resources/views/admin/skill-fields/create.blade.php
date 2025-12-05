@@ -1,4 +1,4 @@
-@extends('admin.template.app')
+@extends('admin.templates.app')
 
 @section('content')
     <div class="w-75 d-block mx-auto mt-3 p-4">

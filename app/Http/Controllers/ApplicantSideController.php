@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Document;
 use App\Models\Applicant;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ApplicantSideController extends Controller
 {
@@ -17,10 +18,22 @@ class ApplicantSideController extends Controller
         $applicant = Auth::user()->applicant;
 
         if (!$applicant) {
-            return redirect()->route('applicants.index')->with('error', 'Lengkapi data pendaftaran terlebih dahulu.');
+            return redirect()->route('applicants.index')
+                ->with('error', 'Lengkapi data pendaftaran terlebih dahulu.');
         }
 
-        return view('applicants.documents.index', compact('applicant'));
+        // Otomatis buat record Document kalau belum ada
+        // status_verifikasi = 'menunggu' sesuai migration terbaru
+        $document = Document::firstOrCreate(
+            ['applicant_id' => $applicant->id],
+            [
+                'status_verifikasi'    => 'menunggu',
+                'verification_status'  => json_encode([]),
+                'verification_notes'   => json_encode([])
+            ]
+        );
+
+        return view('applicants.documents.index', compact('applicant', 'document'));
     }
     /**
      * Show the form for creating a new resource.
@@ -49,9 +62,13 @@ class ApplicantSideController extends Controller
         ]);
 
         $folder = 'documents/applicant_' . $applicant->id;
-        $data = ['status_verifikasi' => 'menunggu'];
 
-        $fields = ['kartu_keluarga','akte_kelahiran','ijazah','surat_kelulusan','ktp_ayah','ktp_ibu','surat_kesehatan'];
+        $fields = [
+            'kartu_keluarga', 'akte_kelahiran', 'ijazah',
+            'surat_kelulusan', 'ktp_ayah', 'ktp_ibu', 'surat_kesehatan'
+        ];
+
+        $data = ['status_verifikasi' => 'menunggu']; // tetap 'menunggu' setelah upload
 
         foreach ($fields as $field) {
             if ($request->hasFile($field)) {
@@ -68,13 +85,12 @@ class ApplicantSideController extends Controller
             }
         }
 
-        // Update atau buat baru → semua field langsung masuk DB
         Document::updateOrCreate(
             ['applicant_id' => $applicant->id],
             $data
         );
 
-        return back()->with('success', 'Dokumen berhasil disimpan!');
+        return back()->with('success', 'Dokumen berhasil diunggah! Menunggu verifikasi.');
     }
 
     /**

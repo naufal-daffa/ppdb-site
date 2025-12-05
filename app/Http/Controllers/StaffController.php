@@ -7,6 +7,8 @@ use App\Models\Staff;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ScheduleExport;
 
 class StaffController extends Controller
 {
@@ -25,12 +27,20 @@ class StaffController extends Controller
     {
         $users = User::where('role', 'staff')->get();
 
+        // Ambil applicant yang:
+        // 1. Belum punya jadwal wawancara
+        // 2. Dokumen sudah ada
+        // 3. Status verifikasi = diverifikasi / lengkap
+        // 4. Belum ditolak & belum di-softdelete
         $applicantsYangSudahAdaJadwal = Staff::withTrashed()
             ->whereNotNull('applicant_id')
             ->pluck('applicant_id')
             ->toArray();
 
-        $applicants = Applicant::with('user')
+        $applicants = Applicant::with('user', 'document')
+            ->whereHas('document', function ($q) {
+                $q->whereIn('status_verifikasi', ['diverifikasi', 'lengkap']);
+            })
             ->where('status_pendaftaran', '!=', 'ditolak')
             ->whereNull('deleted_at')
             ->whereNotIn('id', $applicantsYangSudahAdaJadwal)
@@ -74,25 +84,73 @@ class StaffController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Staff $staff)
+    public function edit($id)
     {
-        //
+        $staff = Staff::findOrFail($id);
+        $users = User::where('role', 'staff')->get();
+
+        // Applicant lain yang sudah ada jadwal (kecuali yang sedang diedit)
+        $applicantsYangSudahAdaJadwal = Staff::whereNotNull('applicant_id')
+            ->where('id', '!=', $id)
+            ->pluck('applicant_id')
+            ->toArray();
+
+        $applicants = Applicant::with('user', 'document')
+            ->whereHas('document', function ($q) {
+                $q->whereIn('status_verifikasi', ['diverifikasi', 'lengkap']);
+            })
+            ->where('status_pendaftaran', '!=', 'ditolak')
+            ->whereNull('deleted_at')
+            ->whereNotIn('id', $applicantsYangSudahAdaJadwal)
+            ->get();
+
+        // Pastikan applicant yang sedang diedit tetap muncul di dropdown
+        if ($staff->applicant_id) {
+            $currentApplicant = Applicant::with('user', 'document')->find($staff->applicant_id);
+            if ($currentApplicant && in_array($currentApplicant->document?->status_verifikasi, ['diverifikasi', 'lengkap'])) {
+                $applicants->prepend($currentApplicant);
+            }
+        }
+
+        return view('admin.staff.edit', compact('staff', 'users', 'applicants'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Staff $staff)
+    public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'staff_id'      => 'required|exists:users,id',
+            'applicant_id'  => 'required|exists:applicants,id',
+            'tanggal_wawancara' => 'required|date',
+            'waktu_wawancara'   => 'required',
+            'status_kehadiran'  => 'nullable|in:hadir,tidak hadir',
+        ]);
+
+        $staff = Staff::findOrFail($id);
+
+        $updated = $staff->update([
+            'user_id'           => $request->staff_id,
+            'applicant_id'      => $request->applicant_id,
+            'tanggal_wawancara' => $request->tanggal_wawancara,
+            'waktu_wawancara'   => $request->waktu_wawancara,
+            'status_kehadiran'  => $request->status_kehadiran ?? $staff->status_kehadiran,
+        ]);
+
+        return $updated
+            ? redirect()->route('admin.staff.index')->with('success', 'Berhasil mengupdate data!')
+            : redirect()->back()->with('error', 'Gagal! Silahkan coba lagi');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Staff $staff)
+    public function destroy(Staff $staff, $id)
     {
-        //
+        $staff = Staff::find($id);
+        $staff->delete();
+        return redirect()->route('admin.staff.index')->with('success', 'berhasil');
     }
 
     public function dataForDatatables()
@@ -119,5 +177,32 @@ class StaffController extends Controller
             })
             ->rawColumns(['aksi'])
             ->make(true);
+    }
+
+    public function export()
+    {
+        return Excel::download(new ScheduleExport, 'Schedules.xlsx');
+    }
+
+    public function trash()
+    {
+        $staff = Staff::withTrashed()->with(['user', 'applicant'])->get();
+        return view('admin.staff.trash', compact('staff'));
+    }
+
+    public function restore($id)
+    {
+        $staff = Staff::onlyTrashed()->findOrFail($id);
+        $staff->restore();
+
+        return redirect()->route('admin.staff.trash')->with('success', 'Data berhasil dipulihkan!');
+    }
+
+    public function deletePermanent($id)
+    {
+        $staff = Staff::onlyTrashed()->findOrFail($id);
+        $staff->forceDelete();
+
+        return redirect()->route('admin.staff.trash')->with('success', 'Data berhasil dihapus permanen!');
     }
 }

@@ -72,17 +72,42 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(User $user)
+    public function edit($id)
     {
-        //
+        $user = User::findOrFail($id);
+        return view('admin.users.edit', compact('user'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request, $id)
     {
-        //
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'nama' => 'required|min:8',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'password' => 'nullable|min:8',
+        ], [
+            'nama.required' => 'Nama Pengguna Wajib diisi!',
+            'nama.min' => 'Nama Minimal berisi 8 karakter!',
+            'email.required' => 'Email mulai wajib diisi!',
+            'password.min' => 'Password Minimal berisi 8 karakter!',
+        ]);
+
+        $data = [
+            'nama' => $request->nama,
+            'email' => $request->email,
+        ];
+
+        if ($request->filled('password')) {
+            $data['password'] = $request->password;
+        }
+
+        $user->update($data);
+
+        return redirect()->route('admin.users.index')->with('success', 'Berhasil memperbarui data!');
     }
 
     /**
@@ -119,7 +144,7 @@ class UserController extends Controller
             if (Auth::user()->role == 'admin') {
                 return redirect()->route('admin.dashboard')->with('success', 'Login Berhasil dilakukan!');
             } elseif (Auth::user()->role == 'staff') {
-                return redirect()->route('staff.dashboard')->with('login', 'Login Berhasil dilakukan!');
+                return redirect()->route('staff.applicants.index')->with('login', 'Login Berhasil dilakukan!');
             } else {
                 return redirect()->route('applicants.index')->with('success', 'Login berhasil dilakukan!');
             }

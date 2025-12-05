@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Document;
+use App\Models\Applicant;
 use Illuminate\Http\Request;
 
 class DocumentController extends Controller
@@ -12,7 +13,47 @@ class DocumentController extends Controller
      */
     public function index()
     {
-        return view('applicants.documents.index');
+        $applicants = Applicant::with(['document', 'user'])
+            ->whereHas('document', function ($query) {
+                $query->whereIn('status_verifikasi', ['menunggu', 'perlu_perbaikan', 'sedang_diverifikasi']);
+            })
+            ->orderByDesc('created_at')
+            ->paginate(12);
+
+        return view('staff.documents.index', compact('applicants'));
+    }
+
+    public function verify($id)
+    {
+        $applicant = Applicant::with('document')->findOrFail($id);
+        return view('staff.documents.verify', compact('applicant'));
+    }
+
+    public function updateVerification(Request $request, $id)
+    {
+        $applicant = Applicant::with('document')->findOrFail($id);
+        $document = $applicant->document;
+
+        $status = $request->input('status', []);
+        $notes  = $request->input('notes', []);
+
+        $document->verification_status = $status;
+        $document->verification_notes  = $notes;
+
+        $rejected = collect($status)->contains('rejected');
+        $hasPending = collect($status)->filter(fn($s) => $s !== 'approved')->count() > 0;
+
+        if ($rejected) {
+            $document->status_verifikasi = 'perlu_perbaikan';
+        } elseif ($hasPending) {
+            $document->status_verifikasi = 'sedang_diverifikasi';
+        } else {
+            $document->status_verifikasi = 'lengkap';
+        }
+
+        $document->save();
+
+        return redirect()->route('staff.documents.index')->with('success', "Verifikasi dokumen {$applicant->nama_lengkap} berhasil disimpan!");
     }
 
     /**
@@ -28,9 +69,7 @@ class DocumentController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            
-        ]);
+
     }
 
     /**

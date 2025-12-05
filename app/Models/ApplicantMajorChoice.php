@@ -2,22 +2,33 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class ApplicantMajorChoice extends Model
+class ApplicantMajorChoice extends Pivot
 {
-    use HasFactory;
+    protected $table = 'applicant_major_choices'; 
 
-    protected $fillable = ['applicant_id', 'major_id', 'priority'];
-
-    public function applicant()
-    {
-        return $this->belongsTo(Applicant::class);
-    }
+    protected $fillable = [
+        'applicant_id',
+        'major_id',
+        'priority',
+    ];
 
     public function major()
     {
-        return $this->belongsTo(Major::class);
+        return $this->belongsTo(\App\Models\Major::class);
+    }
+
+    public function applicant()
+    {
+        return $this->belongsTo(\App\Models\Applicant::class);
+    }
+
+    public function newInstance($attributes = [], $exists = false)
+    {
+        $instance = new static();
+        $instance->setRawAttributes((array) $attributes, true);
+        $instance->setConnection($this->getConnectionName());
+        return $instance;
     }
 }

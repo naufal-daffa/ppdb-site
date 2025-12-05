@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Str;
+use Midtrans\Config;
 
 class ApplicantController extends Controller
 {
@@ -37,7 +38,7 @@ class ApplicantController extends Controller
 
     public function indexPendaftar()
     {
-        $applicant = Applicant::where('user_id', Auth::id())->first();
+        $applicant = Applicant::where('user_id', Auth::id())->with(['majorChoices', 'document', 'selections', 'major'])->first();
         if (!$applicant) {
             return redirect()->back()->with('error', 'Data pendaftar tidak ditemukan.');
         }
@@ -52,10 +53,7 @@ class ApplicantController extends Controller
             return view('applicants.verifikasi', compact('applicant', 'needsVerification'));
         }
 
-        return view('applicants.home', [
-            'applicant' => $applicant,
-            'acceptedApplicant' => $acceptedApplicant,
-        ])->with('diterima', 'Halo ' . ($applicant->nama_lengkap ?? 'Peserta') . ' ! Selamat datang, Silahkan isi dokumen kamu');
+        return view('applicants.home', compact(['applicant', 'acceptedApplicant']))->with('diterima', 'Halo ' . ($applicant->nama_lengkap ?? 'Peserta') . ' ! Selamat datang, Silahkan isi dokumen kamu');
     }
 
 
@@ -128,8 +126,11 @@ class ApplicantController extends Controller
 
         // naufaldaffa098
         $usernameBase = explode('@', $request->alamat_email)[0];
+        // ndaffamusyava
         $username = $usernameBase . rand(100, 999);
+        // ndaffamusyava999
         $passwordPlain = str_pad(rand(0, 9999999999), 10, '0', STR_PAD_LEFT);
+
         $passwordHash = Hash::make($passwordPlain);
 
         $user = User::create([
@@ -169,6 +170,7 @@ class ApplicantController extends Controller
                 'email' => $request->alamat_email,
                 'phone' => $request->nomor_telepon_wali,
             ];
+
 
             $payment = $midtrans->createTransaction($orderId, $grossAmount, $customer);
 
@@ -271,8 +273,8 @@ class ApplicantController extends Controller
                 }
             })
             ->addColumn('jurusan', function ($row) {
-                if ($row->majorChoices->isNotEmpty()) {
-                    return $row->majorChoices->first()->major->nama;
+                if ($row->applicantMajorChoices) {
+                    return $row->applicantMajorChoices->first()->major->nama;
                 } else {
                     return '<span class="text-muted">Belum memilih</span>';
                 }
@@ -281,7 +283,7 @@ class ApplicantController extends Controller
                 if ($row->admissionPath) {
                     return $row->admissionPath->prestasi;
                 } else {
-                    return '<span class="text-muted">Belum memilih</span>';
+                    return '<span class="text-muted">Belum Mengunggah</span>';
                 }
             })
             ->addColumn('buttons', function ($row) {

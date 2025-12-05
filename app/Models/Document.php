@@ -16,18 +16,21 @@ class Document extends Model
         'akte_kelahiran',
         'ijazah',
         'surat_kelulusan',
-        'lokasi_berkas',
         'ktp_ayah',
         'ktp_ibu',
         'surat_kesehatan',
         'status_verifikasi',
-        // 'lokasi_berkas'
+        'verification_status',
+        'verification_notes',
     ];
 
-    // public function applicant() { return $this->belongsTo(Applicant::class); }
+    protected $casts = [
+        'verification_status' => 'array',
+        'verification_notes'  => 'array',
+    ];
+
     public function applicant()
     {
         return $this->belongsTo(Applicant::class, 'applicant_id');
     }
 }
-

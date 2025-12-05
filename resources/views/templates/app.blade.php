@@ -4,157 +4,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PPDB</title>
+    <title>PPDB - SMK WIKRAMA BOGOR</title>
 
-        <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
-    <!-- MDB UI Kit -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/9.1.0/mdb.min.css" rel="stylesheet" />
-    <!-- Favicon -->
-    {{-- CDN CSS datatables --}}
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,700,800,900&display=swap" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.2.0/mdb.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.min.css">
-    <link rel="shortcut icon" href="https://media.licdn.com/dms/image/v2/C510BAQGcQObmC5ADzw/company-logo_200_200/company-logo_200_200/0/1630582740922/tix_id_logo?e=2147483647&v=beta&t=y7u2Lvw4QGrKw64ZYzcBTp34x8Ih-c1-dy_-m9NV4W4">
-    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-    <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ asset('wikrama-logo.png') }}">
-    @stack('style')
-    <style>
+    <link rel="shortcut icon" href="https://placehold.co/16x16/1a73e8/white?text=W">
 
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+
+    @stack('style')
+
+    <style>
+        /* Variabel Warna Korporat */
         :root {
             --primary-color: #108EE9;
             --primary-hover: #002FC7;
+            --navy: #263F88;
+            --yellow: #FFF508;
+            --white: #FFFFFF;
+            --muted: #6b7280;
+            --shadow-sm: 0 6px 18px rgba(38, 63, 136, 0.08);
         }
-
 
         body {
             font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
         }
 
-        /* .navbar-brand {
-            font-weight: 700;
-            color: var(--primary-color) !important;
-        } */
+        /* --- Navbar Styling --- */
+        .navbar-brand {
+            font-weight: 800;
+            color: var(--navy) !important;
+        }
 
         .nav-link {
-            font-size: 18px !important;
+            font-size: 16px !important;
+            font-weight: 500;
+            transition: color 0.3s ease;
         }
 
         .nav-link:hover {
             color: var(--primary-hover) !important;
         }
 
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-hover);
-            border-color: var(--primary-hover);
-        }
-
-        .btn-outline-primary {
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .btn-outline-primary:hover {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(16, 142, 233, 0.25);
-        }
-
         .btn-login-custom {
-            background-color: #FFF508;
+            background-color: var(--yellow) !important;
+            color: #333 !important;
+            font-weight: 700;
+            transition: all 0.3s ease;
         }
 
         .btn-login-custom:hover {
-            background-color: #FFF508;
+            background-color: #ffd700 !important;
+            box-shadow: 0 4px 10px rgba(255, 245, 8, 0.5);
         }
 
         .btn-outline-custom {
-            border: 2px solid #FFF508;
+            border: 2px solid var(--navy);
+            color: var(--navy);
             background-color: transparent;
-            /* transition: all 0.3s ease; */
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
 
         .btn-outline-custom:hover {
-            background-color: #FFF508;
-            color: #000;
-            /* agar teks tetap terbaca saat hover */
+            background-color: var(--navy);
+            color: var(--white);
+        }
+
+        /* --- Global Sections & Typography --- */
+        .section {
+            padding: 80px 0;
+        }
+
+        .alt-section {
+            background-color: #eef5ff;
+        }
+
+        .section-head h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--navy);
+        }
+
+        .section-head p.lead {
+            font-size: 1.15rem;
+            color: #4b5563;
+        }
+
+        .accent {
+            color: var(--primary-hover);
+        }
+
+        .border-start-5 {
+            border-left-width: 5px !important;
         }
     </style>
 </head>
 
 <body>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top justify-align-center px-5">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top px-3 px-md-5">
         <div class="container-fluid">
 
-            <!-- Brand -->
-            <img src="{{ asset('wikrama-logo.png') }}" alt="logo" class="ms-4" style="width: 50px; height: 50px;">
-            <a class="navbar-brand fs-5 fw-bold ms-3" href="#">SMK WIKRAMA <br> BOGOR</a>
+            <img src="{{ asset('wikrama-logo.png') }}" alt="logo" class="ms-0" style="width: 45px; height: 45px;">
+            <a class="navbar-brand fs-5 fw-bold ms-2" href="#">SMK WIKRAMA <br> BOGOR</a>
 
-            <!-- Mobile toggle button -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+                <i class="fas fa-bars"></i>
             </button>
 
-            <!-- Collapsible content -->
-            <div class="collapse justify-align-center px-5 navbar-collapse" id="navbarNav">
+            <div class="collapse navbar-collapse" id="navbarNav">
 
-                <!-- Navigation links - Left side -->
-                <ul class="navbar-nav me-auto">
+                <ul class="navbar-nav mx-auto">
                     <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center gap-2 px-3" href="{{ route('home') }}">
-                            {{-- <i class="fas fa-home"></i> --}}
-                            <span>Beranda</span>
-                        </a>
+                        <a class="nav-link px-3" href="{{ route('home') }}#home"><span>Beranda</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center gap-2 px-3" href="#">
-                            {{-- <i class="fas fa-film"></i> --}}
-                            <span>Tentang Kami</span>
-                        </a>
+                        <a class="nav-link px-3" href="{{ route('home') }}#visi-misi"><span>Visi & Misi</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center gap-2 px-3" href="#">
-                            <span>Jurusan</span>
-                        </a>
+                        <a class="nav-link px-3" href="{{ route('home') }}#jurusan"><span>Jurusan</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center gap-2 px-3" href="#">
-                            {{-- <i class="fas fa-film"></i> --}}
-                            <span>Testimoni</span>
-                        </a>
+                        <a class="nav-link px-3" href="{{ route('home') }}#pancawaluya"><span>Keunggulan</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center gap-2 px-3" href="#">
-                            <span>Kontak</span>
-                        </a>
+                        <a class="nav-link px-3" href="{{ route('home') }}#kegiatan"><span>Kegiatan</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3" href="{{ route('home') }}#kontak"><span>Kontak</span></a>
                     </li>
                 </ul>
 
-
-                {{-- <div class="d-flex justify-content-center flex-grow-1 mx-3">
-                    <div class="input-group" style="max-width: 400px;">
-                        <input type="search" class="form-control border-end-0"
-                               placeholder="Cari film, bioskop, atau lokasi..." aria-label="Search">
-                        <button class="btn btn-outline-secondary border-start-0 bg-white" type="button">
-                            <i class="fas fa-search text-muted"></i>
-                        </button>
-                    </div>
-                </div> --}}
-
-                <div class="d-flex gap-2 me-4">
+                <div class="d-flex gap-2 me-0">
                     <a href="{{ route('signup') }}" class="btn btn-outline-custom">Daftar</a>
                     <a href="{{ route('login') }}" class="btn btn-login-custom">Login</a>
                 </div>
@@ -167,144 +153,63 @@
         <div class="alert alert-warning w-100 d-flex justify-content-end">{{ Session::get('failed') }}</b>
         </div>
     @endif
-    <!-- Content -->
-    @yield('content')
 
-    <!-- Footer -->
-    <footer class="text-center text-lg-start bg-body-tertiary text-muted">
-        <!-- Section: Social media -->
-        {{-- <section class="d-flex justify-content-center justify-content-lg-between p-4 border-bottom">
-            <!-- Left -->
-            <div class="me-5 d-none d-lg-block">
-                <span>Get connected with us on social networks:</span>
-            </div>
-            <!-- Left -->
+    <main>
+        @yield('content')
+    </main>
 
-            <!-- Right -->
-            <div>
-                <a href="" class="me-4 text-reset">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="" class="me-4 text-reset">
-                    <i class="fab fa-twitter"></i>
-                </a>
-                <a href="" class="me-4 text-reset">
-                    <i class="fab fa-google"></i>
-                </a>
-                <a href="" class="me-4 text-reset">
-                    <i class="fab fa-instagram"></i>
-                </a>
-                <a href="" class="me-4 text-reset">
-                    <i class="fab fa-linkedin"></i>
-                </a>
-                <a href="" class="me-4 text-reset">
-                    <i class="fab fa-github"></i>
-                </a>
-            </div>
-            <!-- Right -->
-        </section> --}}
-        <!-- Section: Social media -->
-
-        <!-- Section: Links  -->
-        <section class="container">
+    <footer id="kontak" class="text-center text-lg-start bg-dark text-white">
+        <section class="container p-4">
             <div class="mt-5">
-                <!-- Grid row -->
                 <div class="row mt-3">
-                    <!-- Grid column -->
-                    <div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
-                        <!-- Content -->
-                        <h6 class="text-uppercase fw-bold mb-4">
-                            <img src="{{ asset('wikrama-logo.png') }}" alt="logo" class="" style="width: 60px; height: 60px;">SMK Wikrama
+                    <div class="col-md-4 col-lg-4 col-xl-4 mx-auto mb-4">
+                        <h6 class="text-uppercase fw-bold mb-4 text-warning">
+                            <img src="{{ asset('wikrama-logo.png') }}" alt="logo" class="me-2" style="width: 40px; height: 40px;">SMK Wikrama Bogor
                         </h6>
-                        <p>
-                            Here you can use rows and columns to organize your footer content. Lorem ipsum
-                            dolor sit amet, consectetur adipisicing elit.
+                        <p class="small text-muted">
+                            Sekolah kejuruan yang berkomitmen mencetak pemimpin masa depan berkarakter Pancawaluya, berbasis teknologi informasi, dan siap bersaing di industri 4.0.
                         </p>
                     </div>
-                    <!-- Grid column -->
-
-                    <!-- Grid column -->
                     <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
-                        <!-- Links -->
-                        <h6 class="text-uppercase fw-bold mb-4">
-                            Products
+                        <h6 class="text-uppercase fw-bold mb-4 text-white">
+                            Program Keahlian
                         </h6>
-                        <p>
-                            <a href="#!" class="text-reset">Angular</a>
-                        </p>
-                        <p>
-                            <a href="#!" class="text-reset">React</a>
-                        </p>
-                        <p>
-                            <a href="#!" class="text-reset">Vue</a>
-                        </p>
-                        <p>
-                            <a href="#!" class="text-reset">Laravel</a>
-                        </p>
+                        <p><a href="{{ route('home') }}#jurusan" class="text-reset">TI</a></p>
+                        <p><a href="{{ route('home') }}#jurusan" class="text-reset">BISMEN</a></p>
+                        <p><a href="{{ route('home') }}#jurusan" class="text-reset">PARISWISATA</a></p>
+                        {{-- <p><a href="{{ route('home') }}#jurusan" class="text-reset">Teknik Listrik</a></p> --}}
                     </div>
-                    <!-- Grid column -->
-
-                    <!-- Grid column -->
                     <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
-                        <!-- Links -->
-                        <h6 class="text-uppercase fw-bold mb-4">
-                            Useful links
+                        <h6 class="text-uppercase fw-bold mb-4 text-white">
+                            Informasi Cepat
                         </h6>
-                        <p>
-                            <a href="#!" class="text-reset">Pricing</a>
-                        </p>
-                        <p>
-                            <a href="#!" class="text-reset">Settings</a>
-                        </p>
-                        <p>
-                            <a href="#!" class="text-reset">Orders</a>
-                        </p>
-                        <p>
-                            <a href="#!" class="text-reset">Help</a>
-                        </p>
+                        <p><a href="{{ route('home') }}#visi-misi" class="text-reset">Visi & Misi</a></p>
+                        <p><a href="{{ route('home') }}#pancawaluya" class="text-reset">Keunggulan</a></p>
+                        <p><a href="{{ route('signup') }}" class="text-reset">Pendaftaran PPDB</a></p>
+                        <p><a href="#" class="text-reset">FAQ</a></p>
                     </div>
-                    <!-- Grid column -->
-
-                    <!-- Grid column -->
-                    <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
-                        <!-- Links -->
-                        <h6 class="text-uppercase fw-bold mb-4">Contact</h6>
-                        <p><i class="fas fa-home me-3"></i> New York, NY 10012, US</p>
-                        <p>
-                            <i class="fas fa-envelope me-3"></i>
-                            info@example.com
-                        </p>
-                        <p><i class="fas fa-phone me-3"></i> + 01 234 567 88</p>
-                        <p><i class="fas fa-print me-3"></i> + 01 234 567 89</p>
+                    <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
+                        <h6 class="text-uppercase fw-bold mb-4 text-white">Hubungi Kami</h6>
+                        <p><i class="fas fa-home me-3"></i> Jl. Raya Wangun, Kel. Sindangsari, Kec. Bogor Timur, Kota Bogor</p>
+                        <p><i class="fas fa-envelope me-3"></i> info@smkwikrama.sch.id</p>
+                        <p><i class="fas fa-phone me-3"></i> +62 251 8242411</p>
                     </div>
-                    <!-- Grid column -->
+                    </div>
                 </div>
-                <!-- Grid row -->
-            </div>
         </section>
-        <!-- Section: Links  -->
-
-        <!-- Copyright -->
-        <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.05);">
+        <div class="text-center p-4 small" style="background-color: rgba(0, 0, 0, 0.2);">
             © <?= date('Y') ?> Copyright:
             <a class="text-reset fw-bold" href="#">SMK WIKRAMA BOGOR</a>
         </div>
-        <!-- Copyright -->
-    </footer>
-    <!-- Footer -->
-    <!-- Scripts -->
+        </footer>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js"
         integrity="sha512-2rNj2KJ+D8s1ceNasTIex6z4HWyOnEYLVC3FigGOmyQCZc2eBXKgOxQmo3oKLHyfcj53uz4QMsRCWNbLd32Q1g=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous">
     </script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/9.1.0/mdb.umd.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.2.0/mdb.umd.min.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
-    {{-- <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
-    <script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.js"></script> --}}
-    {{-- CDN JS datatables  --}}
     <script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js"></script>
 
     @stack('script')

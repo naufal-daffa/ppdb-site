@@ -12,8 +12,11 @@ class Certificate extends Model
 
     protected $fillable = [
         'applicant_id',
-        'nama_file',
-        'deskripsi'
+        'file_path',
+        'nama_sertifikat',
+        'deskripsi',
+        'status_verifikasi',
+        'catatan_staff'
     ];
 
     public function applicant() { return $this->belongsTo(Applicant::class); }

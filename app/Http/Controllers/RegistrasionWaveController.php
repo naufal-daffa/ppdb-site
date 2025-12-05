@@ -11,6 +11,7 @@ use App\Models\RegistrasionWave;
 use Maatwebsite\Excel\Facades\Excel;
 use Psy\CodeCleaner\ReturnTypePass;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\DB;
 
 class RegistrasionWaveController extends Controller
 {
@@ -111,28 +112,33 @@ class RegistrasionWaveController extends Controller
     }
 
     public function patch($id)
-    {
-        $registrasionWaves = RegistrationWave::findOrFail($id);
-        if ($registrasionWaves->aktif == 1) {
-            $registrasionWaves->aktif = 0;
-            $registrasionWaves = $registrasionWaves->save();
+{
+    $gelombangBaru = RegistrationWave::findOrFail($id);
 
-            if ($registrasionWaves) {
-                return redirect()->route('admin.registrasion-waves.index')->with('success', 'Film berhasil dinonaktifkan');
-            } else {
-                return redirect()->back()->with('error', 'Gagal! silahkan coba lagi');
-            }
-        } else {
-            $registrasionWaves->aktif = 1;
-            $registrasionWaves = $registrasionWaves->save();
+    // Jika yang diklik sudah aktif → langsung matikan saja (boleh)
+    if ($gelombangBaru->aktif == 1) {
+        $gelombangBaru->aktif = 0;
+        $gelombangBaru->save();
 
-            if ($registrasionWaves) {
-                return redirect()->route('admin.registrasion-waves.index')->with('success', 'Film berhasil diaktifkan');
-            } else {
-                return redirect()->back()->with('error', 'Gagal! silahkan coba lagi');
-            }
-        }
+        return redirect()
+            ->route('admin.registrasion-waves.index')
+            ->with('success', 'Gelombang berhasil dinonaktifkan');
     }
+
+    // Jika yang diklik tidak aktif → aktifkan + nonaktifkan semua yang lain
+    DB::transaction(function () use ($gelombangBaru) {
+        // Matikan semua gelombang dulu
+        RegistrationWave::query()->update(['aktif' => 0]);
+
+        // Aktifkan yang dipilih
+        $gelombangBaru->aktif = 1;
+        $gelombangBaru->save();
+    });
+
+    return redirect()
+        ->route('admin.registrasion-waves.index')
+        ->with('success', 'Gelombang berhasil diaktifkan. Gelombang lain otomatis dinonaktifkan.');
+}
 
 
     /**
@@ -161,28 +167,26 @@ class RegistrasionWaveController extends Controller
                 }
             })
             ->addColumn('buttons', function ($data) {
-                $btnEdit = '<a href="' . route('admin.registrasion-waves.edit', $data->id) . '" class="btn btn-primary">Edit</a>';
-                $btnDelete = '<form action="' . route('admin.registrasion-waves.delete', $data->id) . '" method="POST">' .
-                    csrf_field() .
-                    method_field('DELETE') .
-                    '<button type="submit" class="btn btn-danger">Hapus</button>
-                        </form>';
-                $btnNonAktif = '';
-                $btnAktif = '';
+                $btnEdit   = '<a href="' . route('admin.registrasion-waves.edit', $data->id) . '" class="btn btn-sm btn-primary me-1">Edit</a>';
+
+                $btnDelete = '<form action="' . route('admin.registrasion-waves.delete', $data->id) . '" method="POST" style="display:inline">'
+                        . csrf_field() . method_field('DELETE')
+                        . '<button type="submit" class="btn btn-sm btn-danger me-1">Hapus</button>'
+                        . '</form>';
+
                 if ($data->aktif == 1) {
-                    $btnNonAktif = '<form action="' . route('admin.registrasion-waves.patch', $data->id) . '" method="POST">' .
-                        csrf_field() .
-                        method_field('PATCH') .
-                        '<button type="submit" class="btn btn-warning">Non-Aktifkan Gelombang</button>' .
-                        '</form>';
+                    $btnToggle = '<form action="' . route('admin.registrasion-waves.patch', $data->id) . '" method="POST" style="display:inline">'
+                            . csrf_field() . method_field('PATCH')
+                            . '<button type="submit" class="btn btn-sm btn-warning">Nonaktifkan</button>'
+                            . '</form>';
                 } else {
-                    $btnAktif = '<form action="' . route('admin.registrasion-waves.patch', $data->id) . '" method="POST">' .
-                        csrf_field() .
-                        method_field('PATCH') .
-                        '<button type="submit" class="btn btn-warning">Aktifkan Gelombang</button>' .
-                        '</form>';
+                    $btnToggle = '<form action="' . route('admin.registrasion-waves.patch', $data->id) . '" method="POST" style="display:inline">'
+                            . csrf_field() . method_field('PATCH')
+                            . '<button type="submit" class="btn btn-sm btn-success">Aktifkan</button>'
+                            . '</form>';
                 }
-                return '<div class="d-flex justify-content-center gap-3">' . $btnNonAktif . $btnAktif . $btnEdit . $btnDelete . '</div>';
+
+                return '<div class="d-flex gap-2 flex-wrap">' . $btnToggle . $btnEdit . $btnDelete . '</div>';
             })
             ->rawColumns(['activeBadge', 'buttons'])
             ->make(true);

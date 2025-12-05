@@ -46,10 +46,10 @@
                 </div> --}}
             </div>
 
-            {{-- <div class="col-6 justify-content-end">
+            <div class="col-6 justify-content-end">
                 <!-- Simple link -->
-                <a href="#!">Lupa password?</a>
-            </div> --}}
+                <a href="{{ route('password.request') }}">Lupa password?</a>
+            </div>
         </div>
 
         <!-- Submit button -->

@@ -11,7 +11,17 @@ class Selection extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'applicant_id', 'nilai_ujian', 'nilai_wawancara', 'hasil_akhir', 'status'
+        'applicant_id',
+        'nilai_ujian',
+        'nilai_wawancara',
+        'hasil_akhir',
+        'status'
+    ];
+
+    protected $casts = [
+        'nilai_ujian' => 'float',
+        'nilai_wawancara' => 'float',
+        'hasil_akhir' => 'float',
     ];
 
     public function applicant()

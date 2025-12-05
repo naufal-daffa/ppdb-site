@@ -22,7 +22,7 @@ class Applicant extends Model
         'nomor_telepon',
         'jenis_kelamin',
         'asal_sekolah',
-        'major_id',
+        // 'major_id',
         'pekerjaan_ayah',
         'pekerjaan_ibu',
         'nomor_telepon_wali',
@@ -33,13 +33,25 @@ class Applicant extends Model
 
     public function majorChoices()
     {
-        return $this->belongsToMany(Major::class, 'applicant_major_choices')
+        return $this->belongsToMany(Major::class, 'applicant_major_choices', 'applicant_id', 'major_id')
             ->withPivot('priority')
-            ->orderBy('pivot_priority');
+            ->orderBy('pivot_priority')
+            ->using(ApplicantMajorChoice::class);
+    }
+    public function applicantChoices()
+    {
+        return $this->belongsToMany(Major::class, 'applicant_major_choices')
+                    ->using(ApplicantMajorChoice::class)
+                    ->withPivot('priority')
+                    ->orderBy('priority');
     }
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    public function staff()
+    {
+        return $this->hasOne(Staff::class, 'applicant_id');
     }
     public function major()
     {

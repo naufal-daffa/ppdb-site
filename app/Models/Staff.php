@@ -23,7 +23,6 @@ class Staff extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // Relasi ke pendaftar (tabel applicants)
     public function applicant(): BelongsTo
     {
         return $this->belongsTo(Applicant::class, 'applicant_id');

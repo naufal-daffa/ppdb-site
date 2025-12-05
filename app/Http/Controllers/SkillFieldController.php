@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\SkillField;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\SkillFieldExport;
 
 class SkillFieldController extends Controller
 {
@@ -100,7 +102,7 @@ class SkillFieldController extends Controller
     {
         $deleteSkillField = SkillField::where('id', $id)->delete();
         if ($deleteSkillField) {
-            return redirect()->route('staff.skill-fields.index')->with('success', 'Data berhasil dihapus!');
+            return redirect()->route('admin.skill-fields.index')->with('success', 'Data berhasil dihapus!');
         } else {
             return redirect()->back()->with('failed', 'Gagal! silahkan coba lagi');
         }
@@ -121,5 +123,29 @@ class SkillFieldController extends Controller
             })
             ->rawColumns(['buttons'])
             ->make(true);
+    }
+    public function export()
+    {
+        return Excel::download(new SkillFieldExport, 'skill-fields.xlsx');
+    }
+    public function trash()
+    {
+        $skillField = SkillField::onlyTrashed()->get();
+        return view('admin.skill-fields.trash', compact('skillField'));
+    }
+    public function restore($id)
+    {
+        $skillField = SkillField::onlyTrashed()->findOrFail($id);
+        $skillField->restore();
+
+        return redirect()->route('admin.skill-fields.trash')->with('success', 'Data berhasil dipulihkan!');
+    }
+
+    public function deletePermanent($id)
+    {
+        $skillField = SkillField::onlyTrashed()->findOrFail($id);
+        $skillField->forceDelete();
+
+        return redirect()->route('admin.skill-fields.trash')->with('success', 'Data berhasil dihapus permanen!');
     }
 }

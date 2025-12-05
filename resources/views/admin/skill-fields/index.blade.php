@@ -6,9 +6,9 @@
     @endif
     <div class="container mt-5">
         <div class="d-flex justify-content-end gap-3">
-            {{-- <a href="{{ route('admin.skill-field.export') }}" class="btn btn-secondary">Export (.xlsx)</a> --}}
+            <a href="{{ route('admin.skill-fields.export') }}" class="btn btn-secondary">Export (.xlsx)</a>
             <a href="{{ route('admin.skill-fields.create') }}" class="btn btn-success">Tambah Data</a>
-            {{-- <a href="{{ route('admin.skill-field.trash') }}" class="btn btn-warning">Lihat Data Sampah</a> --}}
+            <a href="{{ route('admin.skill-fields.trash') }}" class="btn btn-warning">Lihat Data Sampah</a>
 
         </div>
         <h5>Data Bidang Keahlian</h5>

@@ -8,6 +8,14 @@ use App\Http\Controllers\RegistrasionWaveController;
 use App\Http\Controllers\SkillFieldController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\ApplicantMajorChoiceController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SelectionController;
+use App\Http\Controllers\ApplicantListController;
+use App\Http\Controllers\AdmissionPathController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Models\Applicant;
 use App\Models\RegistrationWave;
 use App\Models\SkillField;
@@ -31,12 +39,22 @@ Route::post('/login/auth', [UserController::class, 'login'])->name('login.auth')
 Route::get('/signup', [RegisController::class, 'index'])->name('signup')->middleware('isGuest');
 Route::post('/signup/store', [ApplicantController::class, 'store'])->name('signup.store')->middleware('isGuest');
 
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])
+    ->middleware('guest')
+    ->name('password.request');
+
+Route::patch('/forgot-password', [ForgotPasswordController::class, 'sendNewPassword'])
+    ->middleware('guest')
+    ->name('password.email');
+
 Route::get('/logout', [UserController::class, 'logout'])->name('logout');
 
 Route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/chart/gelombang', [DashboardController::class, 'chartGelombang'])->name('dashboard.chart.gelombang');
+    Route::get('/dashboard/chart/status', [DashboardController::class, 'chartStatusPendaftaran'])->name('dashboard.chart.status');
+    Route::get('/dashboard/chart/jurusan', [DashboardController::class, 'chartJurusan'])->name('dashboard.chart.jurusan');
+    Route::get('/dashboard/statistics', [DashboardController::class, 'getStatistics'])->name('dashboard.statistics');
 
 
     Route::prefix('/skill-fields')->name('skill-fields.')->group(function () {
@@ -74,7 +92,7 @@ Route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function (
         Route::get('/create', [RegistrasionWaveController::class, 'create'])->name('create');
         Route::post('/store', [RegistrasionWaveController::class, 'store'])->name('store');
         Route::get('/edit/{id}', [RegistrasionWaveController::class, 'edit'])->name('edit');
-        Route::patch('/patch/{id}', [RegistrasionWaveController::class, 'patch'])->name('patch');
+        Route::patch('/patch/{id}/toggle', [RegistrasionWaveController::class, 'patch'])->name('patch');
         Route::put('/update/{id}', [RegistrasionWaveController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [RegistrasionWaveController::class, 'destroy'])->name('delete');
         Route::patch('/restore/{id}', [RegistrasionWaveController::class, 'restore'])->name('restore');
@@ -131,6 +149,21 @@ Route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function (
         Route::get('/datatable', [StaffController::class, 'dataForDatatables'])->name('datatables');
         Route::get('/export', [StaffController::class, 'export'])->name('export');
     });
+
+    Route::prefix('/admission-paths')->name('admission-paths.')->group(function () {
+        Route::get('/', [AdmissionPathController::class, 'index'])->name('index');
+        Route::get('/create', [AdmissionPathController::class, 'create'])->name('create');
+        Route::post('/store', [AdmissionPathController::class, 'store'])->name('store');
+        Route::get('/edit/{id}', [AdmissionPathController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [AdmissionPathController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [AdmissionPathController::class, 'destroy'])->name('delete');
+        Route::patch('/restore/{id}', [AdmissionPathController::class, 'restore'])->name('restore');
+        Route::get('/trash', [AdmissionPathController::class, 'trash'])->name('trash');
+        Route::delete('/delete-permanent/{id}', [AdmissionPathController::class, 'deletePermanent'])->name('delete-permanent');
+        Route::get('/datatable', [AdmissionPathController::class, 'dataForDatatables'])->name('datatables');
+        Route::get('/export', [AdmissionPathController::class, 'export'])->name('export');
+    });
+
 });
 
 
@@ -143,14 +176,23 @@ Route::middleware('isStaff')->prefix('/staff')->name('staff.')->group(function (
         Route::get('/datatable', [ApplicantController::class, 'dataForDatatablesStaff'])->name('datatables');
         Route::patch('/dashboard/terima/{id}', [ApplicantController::class, 'diterima'])->name('terima');
         Route::patch('/dashboard/tolak/{id}', [ApplicantController::class, 'ditolak'])->name('tolak');
+        Route::get('/list', [ApplicantListController::class, 'index'])->name('index');
+        Route::get('/list/{applicantId}', [ApplicantListController::class, 'show'])->name('show');
+        Route::put('/list/{applicant}/admission-path', [ApplicantListController::class, 'updateAdmissionPath'])->name('update-admission-path');
+        Route::delete('/list/{applicant}/admission-path', [ApplicantListController::class, 'resetAdmissionPath'])->name('reset-admission-path');
     });
     Route::prefix('/documents')->name('documents.')->group(function() {
-        Route::get('/', DocumentController::class, 'index')->name('index');
+        Route::get('/', [DocumentController::class, 'index'])->name('index');
+        Route::get('/verify/{applicant}', [DocumentController::class, 'verify'])->name('verify');
+        Route::post('/verify/{applicant}', [DocumentController::class, 'updateVerification'])->name('verify.store');
+    });
+    Route::prefix('/selection')->name('selection.')->group(function (){
+        Route::get('/', [SelectionController::class, 'index'])->name('index');
+        Route::post('/store/{applicant}', [SelectionController::class, 'store'])->name('store');
     });
 });
 
 Route::middleware('isApplicant')->prefix('/applicants')->name('applicants.')->group(function () {
-
     Route::get('/index', [ApplicantController::class, 'indexPendaftar'])->name('index');
     Route::post('/upload/{id}', [ApplicantController::class, 'uploadBuktiPembayaran'])->name('upload');
 
@@ -158,5 +200,14 @@ Route::middleware('isApplicant')->prefix('/applicants')->name('applicants.')->gr
         Route::get('/', [ApplicantSideController::class, 'index'])->name('index');
         Route::post('/store', [ApplicantSideController::class, 'store'])->name('store');
         // Route::put('/store', [ApplicantSideController::class, 'store'])->name('store');
+    });
+    Route::prefix('/certificates')->name('certificates.')->group(function(){
+        Route::get('/', [CertificateController::class, 'index'])->name('index');
+        Route::post('/store', [CertificateController::class, 'store'])->name('store');
+        Route::delete('/delete', [CertificateController::class, 'destroy'])->name('destroy');
+    });
+    Route::prefix('/majors-choice')->name('choices.')->group(function() {
+        Route::get('/', [ApplicantMajorChoiceController::class, 'index'])->name('index');
+        Route::post('/store', [ApplicantMajorChoiceController::class, 'store'])->name('store');
     });
 });
