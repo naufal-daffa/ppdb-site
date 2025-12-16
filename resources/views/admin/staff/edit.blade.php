@@ -40,7 +40,7 @@
                     @foreach ($applicants as $applicant)
                         @if ($applicant->status_pendaftaran !== 'ditolak' && $applicant->deleted_at === null)
                             <option value="{{ $applicant->id }}" {{ old('applicant_id', $staff->applicant_id) == $applicant->id ? 'selected' : '' }}>
-                                {{ $applicant->nama_lengkap }} - {{ $applicant->nisn }}
+                                {{ $applicant->nama_lengkap }}
                             </option>
                         @endif
                     @endforeach
@@ -70,7 +70,7 @@
                 @enderror
             </div>
 
-            <div class="mb-3">
+            {{-- <div class="mb-3">
                 <label for="status_kehadiran" class="form-label">Status Kehadiran</label>
                 <select name="status_kehadiran" id="status_kehadiran" class="form-select @error('status_kehadiran') is-invalid @enderror">
                     <option value="">Pilih Status</option>
@@ -81,7 +81,7 @@
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
                 <small class="text-muted">Biarkan kosong jika belum diketahui</small>
-            </div>
+            </div> --}}
 
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary">Update Data</button>

@@ -83,14 +83,15 @@ class SelectionController extends Controller
             ]
         );
 
-        // LOGIC BARU: Update status_kehadiran menjadi 'hadir' di tabel Staff
         Staff::where('applicant_id', $applicant->id)
-            ->where('user_id', Auth::id()) // Pastikan hanya jadwal staff yang sedang login yang diupdate
+            ->where('user_id', Auth::id())
             ->update(['status_kehadiran' => 'hadir']);
 
         $applicant->update([
             'status_pendaftaran' => $status_pendaftaran
         ]);
+
+
 
         return back()->with('success', 'Penilaian berhasil disimpan! Status: ' . ucfirst(str_replace('_', ' ', $status)));
     }

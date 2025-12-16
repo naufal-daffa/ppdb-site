@@ -20,7 +20,6 @@
                     <form action="{{ route('admin.staff.store') }}" method="POST">
                         @csrf
 
-                        <!-- Pilih Staff -->
                         <div class="mb-3">
                             <label class="form-label fw-bold">Staff Penjadwal</label>
                             <select name="staff_id" class="form-select @error('staff_id') is-invalid @enderror" required>
@@ -36,11 +35,10 @@
                             @enderror
                         </div>
 
-                        <!-- Pilih Pendaftar (Hanya yang dokumen diverifikasi/lengkap) -->
                         <div class="mb-3">
                             <label class="form-label fw-bold">
                                 Pendaftar
-                                <span class="text-success small">(Hanya yang dokumen sudah diverifikasi)</span>
+                                {{-- <span class="text-success small">(Hanya yang dokumen sudah diverifikasi)</span> --}}
                             </label>
                             <select name="applicant_id" class="form-select @error('applicant_id') is-invalid @enderror" required>
                                 <option value="">-- Pilih Pendaftar --</option>

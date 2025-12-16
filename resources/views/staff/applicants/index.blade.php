@@ -211,7 +211,7 @@
                                 </h4>
                             </div>
                             <div class="avatar-sm rounded-circle bg-warning bg-opacity-10 p-3">
-                                <i class="fas fa-shield-check text-warning fa-lg"></i>
+                                <i class="fas fa-check-circle text-warning fa-lg"></i>
                             </div>
                         </div>
                     </div>

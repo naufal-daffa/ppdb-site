@@ -10,7 +10,6 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use App\Services\MidtransService;
 use Illuminate\Support\Facades\Log;
 use Exception;
 use Illuminate\Support\Facades\Auth;
@@ -19,22 +18,15 @@ use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Str;
 use Midtrans\Config;
+use Midtrans\Snap;
 
 class ApplicantController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $applicants = Applicant::with(['major', 'admissionPath'])->get();
+        $applicants = Applicant::with(['admissionPath', 'majorChoices'])->get();
         return view('admin.applicants.index', compact('applicants'));
     }
-
-    // public function indexPendaftar()
-    // {
-    //     return view('applicants.home');
-    // }
 
     public function indexPendaftar()
     {
@@ -56,13 +48,9 @@ class ApplicantController extends Controller
         return view('applicants.home', compact(['applicant', 'acceptedApplicant']))->with('diterima', 'Halo ' . ($applicant->nama_lengkap ?? 'Peserta') . ' ! Selamat datang, Silahkan isi dokumen kamu');
     }
 
-
-
-
     public function indexStaff()
     {
         $applicants = Applicant::whereIn('status_verifikasi', ['diterima', 'menunggu'])->get();
-        // dd($applicants);
         return view('staff.home', compact('applicants'));
     }
 
@@ -92,19 +80,17 @@ class ApplicantController extends Controller
         }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
+        Config::$serverKey = config('midtrans.server_key');
+        Config::$isProduction = config('midtrans.is_production');
+        Config::$isSanitized = config('midtrans.is_sanitized');
+        Config::$is3ds = config('midtrans.is_3ds');
 
         $request->validate([
             'nama_lengkap' => 'required|max:255',
@@ -120,15 +106,10 @@ class ApplicantController extends Controller
             'nomor_telepon_wali' => 'required|numeric',
         ]);
 
-
         $wave = RegistrationWave::where('aktif', 1)->first();
 
-
-        // naufaldaffa098
         $usernameBase = explode('@', $request->alamat_email)[0];
-        // ndaffamusyava
         $username = $usernameBase . rand(100, 999);
-        // ndaffamusyava999
         $passwordPlain = str_pad(rand(0, 9999999999), 10, '0', STR_PAD_LEFT);
 
         $passwordHash = Hash::make($passwordPlain);
@@ -161,26 +142,32 @@ class ApplicantController extends Controller
         $paymentUrl = null;
 
         try {
-            $midtrans = new MidtransService();
-
             $orderId = 'PPDB-' . $applicant->id . '-' . time();
             $grossAmount = 250000;
-            $customer = [
-                'first_name' => $request->nama_lengkap,
-                'email' => $request->alamat_email,
-                'phone' => $request->nomor_telepon_wali,
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $orderId,
+                    'gross_amount' => $grossAmount,
+                ],
+                'customer_details' => [
+                    'first_name' => $request->nama_lengkap,
+                    'email' => $request->alamat_email,
+                    'phone' => $request->nomor_telepon_wali,
+                ],
             ];
 
+            $snapTransaction = Snap::createTransaction($params);
 
-            $payment = $midtrans->createTransaction($orderId, $grossAmount, $customer);
+            $payment = $snapTransaction->redirect_url ?? null;
 
             Log::info('MIDTRANS RETURN:', $payment);
 
-            if (!empty($payment['url'])) {
-                $paymentUrl = $payment['url'];
+            if (!empty($payment)) {
+                $paymentUrl = $payment;
                 $applicant->payment_url = $paymentUrl ;
                 $applicant->save();
-
+                // mencatat aksi
                 Log::info("Payment URL berhasil disimpan: " . $paymentUrl);
             } else {
                 Log::warning("Payment URL kosong dari Midtrans untuk applicant_id: {$applicant->id}");
@@ -227,33 +214,21 @@ class ApplicantController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Applicant $applicant)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Applicant $applicant)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Applicant $applicant)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Applicant $applicant)
     {
         //
@@ -261,7 +236,7 @@ class ApplicantController extends Controller
 
     public function dataForDatatables()
     {
-        $applicants = Applicant::query();
+        $applicants = Applicant::query()->with('majorChoices');
         return DataTables::of($applicants)
             ->addIndexColumn()
             ->addColumn('bukti_pembayaran', function ($row) {
@@ -273,8 +248,8 @@ class ApplicantController extends Controller
                 }
             })
             ->addColumn('jurusan', function ($row) {
-                if ($row->applicantMajorChoices) {
-                    return $row->applicantMajorChoices->first()->major->nama;
+                if ($row->majorChoices && $row->majorChoices->isNotEmpty()) {
+                    return $row->majorChoices->first()->nama;
                 } else {
                     return '<span class="text-muted">Belum memilih</span>';
                 }
@@ -312,12 +287,12 @@ class ApplicantController extends Controller
                     csrf_field() .
                     method_field('PATCH') .
                     '<button type="submit" class="btn btn-danger">Tolak</button>
-                        </form>';
+                         </form>';
                 $btnTerima = '<form action="' . route('staff.applicants.terima', $data->id) . '" method="POST">' .
                     csrf_field() .
                     method_field('PATCH') .
                     '<button type="submit" class="btn btn-success">Terima</button>
-                        </form>';
+                         </form>';
                 $item = htmlspecialchars(json_encode($data), ENT_QUOTES, 'UTF-8');
                 $modal = "<button class='btn btn-sm btn-info' onclick='showModal($item)'>Detail</button>";
                 if ($data->status_verifikasi == 'diterima') {
@@ -329,12 +304,12 @@ class ApplicantController extends Controller
             ->rawColumns(['bukti_pembayaran', 'buttons'])
             ->make(true);
     }
+
     public function export()
     {
         return Excel::download(new ApplicantExport, 'applicants.xlsx');
     }
 
-    // staff
     public function diterima($id)
     {
         $user = Applicant::where('id', $id)->update([
@@ -347,22 +322,6 @@ class ApplicantController extends Controller
             return redirect()->back()->with('error', 'Gagal!');
         }
     }
-    // public function ditolak(Applicant $applicant, $id)
-    // {
-    //     $filePath = 'storage/' . $applicant->bukti_pembayaran;
-    //     $result = $applicant->where('id', $id)->update([
-    //         'status_verifikasi' => 'ditolak',
-    //         'bukti_pembayaran' => null
-    //     ]);
-
-    //     Storage::disk('public')->delete($filePath);
-
-    //     if ($result) {
-    //         return redirect()->back()->with('success', 'Berhasil!');
-    //     } else {
-    //         return redirect()->back()->with('error', 'Gagal!');
-    //     }
-    // }
 
     public function ditolak(Applicant $applicant, $id)
     {

@@ -89,7 +89,6 @@ class StaffController extends Controller
         $staff = Staff::findOrFail($id);
         $users = User::where('role', 'staff')->get();
 
-        // Applicant lain yang sudah ada jadwal (kecuali yang sedang diedit)
         $applicantsYangSudahAdaJadwal = Staff::whereNotNull('applicant_id')
             ->where('id', '!=', $id)
             ->pluck('applicant_id')
@@ -104,7 +103,6 @@ class StaffController extends Controller
             ->whereNotIn('id', $applicantsYangSudahAdaJadwal)
             ->get();
 
-        // Pastikan applicant yang sedang diedit tetap muncul di dropdown
         if ($staff->applicant_id) {
             $currentApplicant = Applicant::with('user', 'document')->find($staff->applicant_id);
             if ($currentApplicant && in_array($currentApplicant->document?->status_verifikasi, ['diverifikasi', 'lengkap'])) {
@@ -125,7 +123,7 @@ class StaffController extends Controller
             'applicant_id'  => 'required|exists:applicants,id',
             'tanggal_wawancara' => 'required|date',
             'waktu_wawancara'   => 'required',
-            'status_kehadiran'  => 'nullable|in:hadir,tidak hadir',
+            // 'status_kehadiran'  => 'nullable|in:hadir,tidak hadir',
         ]);
 
         $staff = Staff::findOrFail($id);
@@ -135,7 +133,7 @@ class StaffController extends Controller
             'applicant_id'      => $request->applicant_id,
             'tanggal_wawancara' => $request->tanggal_wawancara,
             'waktu_wawancara'   => $request->waktu_wawancara,
-            'status_kehadiran'  => $request->status_kehadiran ?? $staff->status_kehadiran,
+            // 'status_kehadiran'  => $request->status_kehadiran ?? $staff->status_kehadiran,
         ]);
 
         return $updated
@@ -167,13 +165,17 @@ class StaffController extends Controller
             ->addColumn('aksi', function ($row) {
                 $edit   = route('admin.staff.edit', $row->id);
                 $delete = route('admin.staff.delete', $row->id);
-                return "
-                    <a href='$edit' class='btn btn-sm btn-warning'>Edit</a>
-                    <form action='$delete' method='POST' style='display:inline-block;'>
-                        " . csrf_field() . method_field('DELETE') . "
-                        <button type='submit' class='btn btn-sm btn-danger' onclick='return confirm(\"Yakin hapus?\")'>Hapus</button>
-                    </form>
-                ";
+                if($row->status_kehadiran == 'tidak hadir'){
+                    return "
+                        <a href='$edit' class='btn btn-sm btn-warning'>Edit</a>
+                        <form action='$delete' method='POST' style='display:inline-block;'>
+                            " . csrf_field() . method_field('DELETE') . "
+                            <button type='submit' class='btn btn-sm btn-danger' onclick='return confirm(\"Yakin hapus?\")'>Hapus</button>
+                        </form>
+                    ";
+                }else{
+                    return "<span class='badge badge-success'>Pendaftar Hadir</span>";
+                }
             })
             ->rawColumns(['aksi'])
             ->make(true);

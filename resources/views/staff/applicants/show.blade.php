@@ -288,11 +288,11 @@
                         <div class="row">
                             @php
                                 $documents = [
-                                    ['name' => 'Kartu Keluarga', 'field' => 'kartu_keluarga', 'icon' => 'fas fa-id-card'],
-                                    ['name' => 'Akte Kelahiran', 'field' => 'akte_kelahiran', 'icon' => 'fas fa-birthday-cake'],
-                                    ['name' => 'Ijazah', 'field' => 'ijazah', 'icon' => 'fas fa-file-certificate'],
-                                    ['name' => 'Surat Kelulusan', 'field' => 'surat_kelulusan', 'icon' => 'fas fa-graduation-cap'],
-                                    ['name' => 'Surat Kesehatan', 'field' => 'surat_kesehatan', 'icon' => 'fas fa-heartbeat'],
+                                    ['name' => 'Kartu Keluarga', 'field' => 'kartu_keluarga'],
+                                    ['name' => 'Akte Kelahiran', 'field' => 'akte_kelahiran'],
+                                    ['name' => 'Ijazah', 'field' => 'ijazah'],
+                                    ['name' => 'Surat Kelulusan', 'field' => 'surat_kelulusan'],
+                                    ['name' => 'Surat Kesehatan', 'field' => 'surat_kesehatan'],
                                 ];
                             @endphp
 
@@ -302,7 +302,7 @@
                                         <div class="card border h-100">
                                             <div class="card-body text-center">
                                                 <div class="mb-3">
-                                                    <i class="{{ $doc['icon'] }} fa-3x text-primary"></i>
+                                                    {{-- <i class="{{ $doc['icon'] }} fa-3x text-primary"></i> --}}
                                                 </div>
                                                 <h6>{{ $doc['name'] }}</h6>
                                                 <div class="mt-3">
